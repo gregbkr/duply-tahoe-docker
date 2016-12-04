@@ -438,21 +438,21 @@ Check the key
 
 In duply conf:
 
-# gpg encryption:
-GPG_KEY='DC581D8A'
-GPG_PW='geneva2016'
+    # gpg encryption:
+    GPG_KEY='DC581D8A'
+    GPG_PW='geneva2016'
 
 
 ## 5.2 Duply backup to S3 backend
 
 You need to have a bucket ready on AWS or Exoscale and edit .duply/YOUR_BCK_PROFILE/conf
 
-# for s3 exoscale
-TARGET='s3://sos.exo.io/backup-duply/test'
-TARGET_USER='w_Y9G_G22bldi9q....'
-TARGET_PASS='X_haTCVy6q4UQJBS...'
+    # for s3 exoscale
+    TARGET='s3://sos.exo.io/backup-duply/test'
+    TARGET_USER='w_Y9G_G22bldi9q....'
+    TARGET_PASS='X_haTCVy6q4UQJBS...'
 
-# for s3 aws
-TARGET='s3://s3-us-west-2.amazonaws.com/backup-duply/test'
-TARGET_USER='AKIAJ....'
-TARGET_PASS='KUgmx....'
+    # for s3 aws
+    TARGET='s3://s3-us-west-2.amazonaws.com/backup-duply/test'
+    TARGET_USER='AKIAJ....'
+    TARGET_PASS='KUgmx....'

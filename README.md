@@ -1,4 +1,6 @@
-# DUPLY TO TAHOE: BACKUP INFRA #
+# DUPLY TO TAHOE-LAFS: EASY INCREMENTAL BACKUP TO ENCRYPTED & DECENTRALISE GRID OF RASPBERRY PI 3 #
+
+![duply-tahoe.png](https://github.com/gregbkr/duply-tahoe-docker/raw/master/duply-tahoe.png)
 
 Duply: 
 - runs backup on host which has the ssh keys to access other servers
@@ -7,10 +9,7 @@ Duply:
 - sends backup to backend:
    - Tahoe LAFS: a decentralysed encrypted storage grid made of Raspberry/homepc/server (full doc below)
    - AWS S3: S3 classic bucket (few steps in end of document)
-
-![duply-tahoe.png](https://github.com/gregbkr/duply-tahoe-docker/raw/master/duply-tahoe.png)
-
-
+   
 # 1. Get all files from github and build the container
 
     cd /root/ && git clone https://bitbucket.org/sbex/duply.git && cd duply
@@ -21,7 +20,7 @@ Duply:
 You can build the storage grid on the same server for testing, or different one for production. Follow the graph to see which port to open.
 
 ## 2.1 Introducer: 
-Connector/hub/directory which will list all available storages. Where our client will get the list of all available storage.
+Connector/hub/directory which will list all available storages. Where our client will get the list of all available storages.
 
 Initialize:
 
@@ -244,8 +243,6 @@ Duply container should already be running, or see on top the section: "Run duply
 
 Create a test config:
 
-Copy/paste an existing one or use new default config :
-
     docker exec duply duply test create
 
     nano /root/.duply/test/conf   <-- replace with the value below
@@ -322,7 +319,7 @@ Edit main conf:
     TARGET='tahoe://backup/'
 
     # base directory to backup
-    SOURCE='/mnt/backup'    #<-- for a docker, always the same
+    SOURCE='/mnt/backup'    #<-- for remote backup with sshfs
 
     # GPG
     GPG_KEY='disabled'  # <-- tahoe take care of encryption
@@ -346,7 +343,7 @@ Edit script PRE which will be executed before the backup (please change VM and C
     nano /root/.duply/postgres/pre
 
     #!/bin/bash
-    VM=185.19.28.192
+    VM=185.19.x.x
     CONTAINER=dbmaster
     DATE=$(date +%Y-%m-%d)
 

@@ -200,8 +200,7 @@ Note:
 
 At this point your can see all your node in the admin GUI on <storageclient_ip>:3456
 
-
-PIC
+![tahoe-admin.png](https://github.com/gregbkr/duply-tahoe-docker/raw/master/tahoe-admin.png)
 
 Create(or import an existing) tahoe alias: it is the root folder where we will make backup.
 

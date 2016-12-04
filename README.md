@@ -1,12 +1,12 @@
 # DUPLY TO TAHOE: BACKUP INFRA #
 
 Duply: 
-- run on backup server (which has the ssh keys to access other servers to save)
+- runs backup on host which has the ssh keys to access other servers
 - uses duplicity/rsync to incrementally backup local/remote folder
-- can crypt (or leave the task to backend) 
-- send backup to backend:
-   - Tahoe LA FS: a decentralysed encrypted storage grid made of Raspberry/homepc/servers (full doc below)
-   - AWS S3: S3 classic bucket (few step in end of document)
+- can encrypt (or leave the task to backend) 
+- sends backup to backend:
+   - Tahoe LAFS: a decentralysed encrypted storage grid made of Raspberry/homepc/server (full doc below)
+   - AWS S3: S3 classic bucket (few steps in end of document)
 
 ![duply-tahoe.png](https://github.com/gregbkr/duply-tahoe-docker/raw/master/duply-tahoe.png)
 
@@ -36,10 +36,10 @@ Get the introducer url and replace --introducer in next commands!!
     docker exec tahoe-introducer cat /root/.introducer/private/introducer.furl
 
 
-## 2.2a Storage server
-Node all the actual data will be. Can be raspberry, server, homepc.
+## 2.2 Storage server
+Grid nodes where all the actual data will be. It can be raspberry, server, homepc.
 
-For linux box use:
+### 2.2.1 For linux box use:
 
 Initialize:
 
@@ -51,10 +51,10 @@ Run container:
 
 Same config on other storage servers...
 
-## 2.2b Storage server on raspberry pi (raspian)
+### 2.2.2 Storage server on raspberry pi (raspian)
 
 What you need:
-- Ubuntu laptop to load the pi os
+- Ubuntu laptop to load the pi os to a SD card
 - Access to your home router configuration (for port forwarding)
 - Network cable (prefered) or wifi access
 
@@ -148,8 +148,7 @@ Build images
     sudo docker build -t tahoe-arm .
 
 Add settings:
-YOUR_PUBLIC_IP --> at home find your public IP here: https://www.whatismyip.com/what-is-my-public-ip-address/
-(mine: 185.31.100.144)
+YOUR_PUBLIC_IP --> at home, find your public IP here: https://www.whatismyip.com/what-is-my-public-ip-address/
 
     sudo docker run --rm -v /home/pi/.tahoe:/root/.tahoe/ tahoe-arm tahoe create-node --nickname=`hostname` --port=tcp:3457 --location=tcp:<YOUR_PUBLIC_IP>:3457 --introducer=pb://zya.....
 
@@ -168,15 +167,15 @@ IP destination  : 192.168.1.33   <- your raspberry local IP
 Port destination: 3457
 ```
 
-Test with: (should get a filtered/open state at leat)
+Test with: (should get a filtered/open state at least)
 
     nmap YOURPUBLIC_IP_ADDRESS -p 3456 -Pn
 
 
 ## 2.3 Storage client
-No backup files here, but all secrets here. We will run backup and restore from here. So this container got tahoe-client and duply. 
+This is the backup server: no backup files here, but all secrets are here. We will run backup and restore from here. So this container got tahoe-client and duply. 
 
-Initialize tahoe-client (if first time) and use the introducer url from your grid:
+Initialize tahoe-client and use the introducer url from your grid:
 
     docker run --rm -v /root/.tahoe:/root/.tahoe/ duply \
         tahoe create-client \
@@ -195,12 +194,14 @@ Run duply + tahoe-client container:
         duply
 
 Note: 
-  - always edit config on the host, and use docker restart duply to refresh container. 
+  - always edit config on the host, and use docker restart duply to refresh container if needed
   - --cap-add, --device, --priviledged: is to be able to backup remote folder via sshfs
   - -v /ssh, .gnupg: share the host key to container duply
 
 At this point your can see all your node in the admin GUI on <storageclient_ip>:3456
 
+
+PIC
 
 Create(or import an existing) tahoe alias: it is the root folder where we will make backup.
 
@@ -237,9 +238,9 @@ Upload a file. Now you can see that if you don't provide that long URI, it is im
 If you upload a file without providing any URI, tahoe will generate a new URI. Don't loose that URI, or you can't recover your files.
 
 
-# 2. Duply
+# 3. Duply
 
-## 2.1 Setup duply test conf
+## 3.1 Setup duply test conf
 Duply container should already be running, or see on top the section: "Run duply + tahoe-client container"
 
 Create a test config:
@@ -276,7 +277,7 @@ Check file are present in Tahoe via GUI or command line (you should see few dupl
     docker exec duply tahoe ls backup:
 
 
-## 2.2 Quick commands
+## 3.2 Quick commands
 
 Backup
 
@@ -308,7 +309,7 @@ restore version of 10 min ago.
     docker run --rm -v /root/duply/.duply:/root/.duply -v /root/restore:/root/restore duply ethereum restore /root/restore/ethereum --time 10m
 
 
-## 4a. Typical backup profile
+## 3.3 Typical backup profile
 
 Usually, important file to backup are not on the backup server. So I use ssh to run command like pg_dump for exemple, before to retrieve the files via sshfs.
 
@@ -372,9 +373,9 @@ Run a Backup
     docker exec duply duply postgres backup
 
 
-# 5. Maintenance
+# 4. Maintenance
 
-## 5.1 Backup the backup server
+## 4.1 Backup the backup server
 
 You need to backup in a save place the following files:
 
@@ -384,22 +385,22 @@ You need to backup in a save place the following files:
 
 IMPORTANT: Please make few backups. Then try to restore the system on another host to be sure to cover a disaster recovery!!
 
-## 5.2 Tahoe
+## 4.2 Tahoe
 
 To reconstruct the backup, if one node goes offline, or one new node get added: (run every day by cron)
 
     docker exec duply duply tahoe deep-check --repair backup:
 
-## 5.3 Crontab
+## 4.3 Crontab
 
     # duply: backups
     00 00 * * * /usr/bin/docker exec duply duply test backup | tee --append /root/logs/duply-test.log > /dev/null 2>/dev/null
     # Tahoe: maintenance
     00 03 * * 1 docker exec duply duply tahoe deep-check --repair backup:  | tee --append /root/logs/tahoe-maintenance.log > /dev/null 2>/dev/null
 
-# 6. ANNEXES
+# 5. ANNEXES
 
-## 6.1 To encrypt with pgp keys the backup: (not needed as tahoe already encrypt)
+## 5.1 To encrypt with pgp keys the backup: (not needed as tahoe already encrypt)
 
 Use the provided one for test:
 
@@ -443,7 +444,7 @@ GPG_KEY='DC581D8A'
 GPG_PW='geneva2016'
 
 
-## 6.2 Duply backup to S3 backend
+## 5.2 Duply backup to S3 backend
 
 You need to have a bucket ready on AWS or Exoscale and edit .duply/YOUR_BCK_PROFILE/conf
 

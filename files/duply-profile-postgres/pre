@@ -1,0 +1,14 @@
+#!/bin/bash
+VM=185.19.xx.xx
+CONTAINER=dbmaster
+DATE=$(date +%Y-%m-%d)
+
+mkdir -p /mnt/backup
+
+echo "--> postgres: pg_dump"
+ssh -o StrictHostKeyChecking=no -i /ssh/id_rsa_sbexx root@$VM mkdir -p /root/backup
+ssh -o StrictHostKeyChecking=no -i /ssh/id_rsa_sbexx root@$VM bash -c \" docker exec -t -u postgres $CONTAINER pg_dumpall -c \| gzip --rsyncable \> /root/backup/postgres-pgdump.gz \"
+
+echo "--> Mount remote backup folder to local duply container"
+sshfs -o StrictHostKeyChecking=no -oIdentityFile=/ssh/id_rsa_sbexx root@$VM:/root/backup /mnt/backup
+ls -lah /mnt/backup

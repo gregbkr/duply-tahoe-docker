@@ -1,0 +1,5 @@
+*.asc
+.gnupg
+.cache
+.ssh
+.tahoe/private

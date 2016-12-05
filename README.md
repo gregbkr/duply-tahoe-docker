@@ -9,7 +9,9 @@ Duply:
 - sends backup to backend:
    - Tahoe LAFS: a decentralysed encrypted storage grid made of Raspberry/homepc/server (full doc below)
    - AWS S3: S3 classic bucket (few steps in end of document)
-   
+
+More info: you can find an overview of that setup on my blog: https://greg.satoshi.tech/
+
 # 1. Get all files from github and build the container
 
     cd /root/ && git clone https://bitbucket.org/sbex/duply.git && cd duply

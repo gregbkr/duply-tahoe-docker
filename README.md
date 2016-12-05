@@ -57,6 +57,8 @@ What you need:
 - Access to your home router configuration (for port forwarding)
 - Network cable (prefered) or wifi access
 
+Note: this only thing missing so far in my doc is how to connect an external HD for more storage. We will use only SD storage for the moment.
+
 Download raspian image:
 
     cd Downloads && wget https://downloads.raspberrypi.org/raspbian_lite_latest
